@@ -9,6 +9,9 @@
 #include "resource.h"
 
 #define keyCode(x) x-32
+
+#define FPS_TIMER 1000/24  //24fps
+
 // Global variables
 
 // The main window class name.
@@ -98,14 +101,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	TCHAR greeting[] = _T("Hello, Windows desktop!");
-	HDC hMemDC;
+	HDC hMemDC,backDC;
 	BITMAP bmp;
+	
 	static HBITMAP hBit = NULL;
-	static HBITMAP backHBit = NULL;
+	static HBITMAP backBitMap;
+	static HBITMAP hPreBit;
+
 	static int x = 100;
 	static int y = 100;
 	static HANDLE hTimer;
 	static int FPS = 0;
+	
+	static RECT clientRect;
 	switch (message)
 	{
 	case WM_KEYDOWN:		
@@ -138,15 +146,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//MessageBox(hWnd, L"@@@", L"@$!", NULL);
 		if (hBit != NULL){
 			//MessageBox(hWnd, L"@@@@", L"!!", NULL);
-			hMemDC = CreateCompatibleDC(hdc);
-		
-			SelectObject(hMemDC, hBit);
-			GetObject(hBit, sizeof(BITMAP), &bmp);
+			GetClientRect(hWnd, &clientRect);
 
-			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);
+			hMemDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 DC
+			backDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 DC
+
+			backBitMap = CreateCompatibleBitmap(hdc, clientRect.right, clientRect.bottom);// 빈 bitmap 생성
+
+			hPreBit = (HBITMAP)SelectObject(hMemDC, backBitMap);// 비트맵과 backDC 연결
+			GetObject(hBit, sizeof(BITMAP), &bmp);//hBit의 비트맵 정보를 bmp에 저장
+			SelectObject(backDC, hBit);
+			BitBlt(hMemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//backDC에 hMemDC의 이미지 복사
+			
+
+			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//화면에 backDC 이미지를 복사
+
+			SelectObject(hMemDC, hPreBit);
 
 			DeleteObject(hBit);
 			DeleteDC(hMemDC);
+			DeleteDC(backDC);
 			hBit = NULL;
 			FPS++;
 
@@ -157,18 +176,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_CREATE:
-		hTimer = (HANDLE)SetTimer(hWnd, 1, 1000 / 30, NULL);//보여줄 윈도우, 타이머ID, 타이머시간1000=1초, 함수 PROC, NULL로해도됨 wm_timer로 들어옴
-		hTimer = (HANDLE)SetTimer(hWnd, 2, 1000, NULL);
+		hTimer = (HANDLE)SetTimer(hWnd, 1, FPS_TIMER, NULL);//보여줄 윈도우, 타이머ID, 타이머시간1000=1초, 함수 PROC, NULL로해도됨 wm_timer로 들어옴
+		(HANDLE)SetTimer(hWnd, 2, 5000, NULL);
 		break;
 	case WM_TIMER:
-		switch (wParam) {
+		switch (wParam) {//timerid
+
 		case 1:
-			hBit = ScreenCapture(hWnd);		
-			InvalidateRect(hWnd, NULL, TRUE);
+			hBit = ScreenCapture(hWnd);
+			InvalidateRect(hWnd, NULL, FALSE);//세번째 인자는 지우고 그릴지 FALSE = 안지움
 			break;
 		case 2:
 			wchar_t bb[100];
-			wsprintf(bb, L"%d %d", wParam,FPS);
+			wsprintf(bb, L"%d %d", wParam,FPS/5);
 			//MessageBox(hWnd,bb, L"!!", NULL);
 			FPS = 0;
 			break;
