@@ -8,5 +8,7 @@ Win32_Study
   <ul>
     <li>- [ ] Improve double buffering</li>
     <li>- [ ] Add image compress(JPEG)</li>    
+    <li>- [ ] Add network code(socket)</li>    
+    <li>- [ ] Create </li>    
   </ul>
 </p>
