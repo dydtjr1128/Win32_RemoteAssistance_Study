@@ -10,7 +10,7 @@
 
 #define keyCode(x) x-32
 
-#define FPS_TIMER 1000/24  //24fps
+#define FPS_TIMER 1000/24  //24fps screen capture timer
 
 // Global variables
 
@@ -38,7 +38,7 @@ BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	switch (message)
 	{
 	case WM_CREATE:
-		//¾ÈºÒ¸²
+		//ì•ˆë¶ˆë¦¼
 		break;
 	case WM_KEYDOWN:
 		MessageBox(hWnd, L"!!!", L"!!", NULL);
@@ -76,12 +76,12 @@ BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		switch (LOWORD(wParam))
 		{
 		case IDOK:
-			msgboxID = MessageBox(hWnd, L"OK ¹öÆ°ÀÌ ´­·¯Á³½À´Ï´Ù. ÇÁ·Î±×·¥À» Á¾·áÇÒ±î¿ä?", L"Á¤º¸", MB_YESNO);
+			msgboxID = MessageBox(hWnd, L"OK ë²„íŠ¼ì´ ëˆŒëŸ¬ì¡ŒìŠµë‹ˆë‹¤. í”„ë¡œê·¸ë¨ì„ ì¢…ë£Œí• ê¹Œìš”?", L"ì •ë³´", MB_YESNO);
 
 			if (msgboxID == 6) EndDialog(hWnd, 0);
 			break;
 		case IDCANCEL:
-			msgboxID = MessageBox(hWnd, L"CANCEL ¹öÆ°ÀÌ ´­·¯Á³½À´Ï´Ù. ÇÁ·Î±×·¥À» Á¾·áÇÒ±î¿ä?", L"Á¤º¸", MB_YESNO);
+			msgboxID = MessageBox(hWnd, L"CANCEL ë²„íŠ¼ì´ ëˆŒëŸ¬ì¡ŒìŠµë‹ˆë‹¤. í”„ë¡œê·¸ë¨ì„ ì¢…ë£Œí• ê¹Œìš”?", L"ì •ë³´", MB_YESNO);
 
 			if (msgboxID == 6) EndDialog(hWnd, 0);
 			break;
@@ -148,18 +148,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//MessageBox(hWnd, L"@@@@", L"!!", NULL);
 			GetClientRect(hWnd, &clientRect);
 
-			hMemDC = CreateCompatibleDC(hdc);//´õºí¹öÆÛ¸µÀ» À§ÇÑ DC
-			backDC = CreateCompatibleDC(hdc);//´õºí¹öÆÛ¸µÀ» À§ÇÑ DC
+			hMemDC = CreateCompatibleDC(hdc);//ë”ë¸”ë²„í¼ë§ì„ ìœ„í•œ DC
+			backDC = CreateCompatibleDC(hdc);//ë”ë¸”ë²„í¼ë§ì„ ìœ„í•œ DC
 
-			backBitMap = CreateCompatibleBitmap(hdc, clientRect.right, clientRect.bottom);// ºó bitmap »ı¼º
+			backBitMap = CreateCompatibleBitmap(hdc, clientRect.right, clientRect.bottom);// ë¹ˆ bitmap ìƒì„±
 
-			hPreBit = (HBITMAP)SelectObject(hMemDC, backBitMap);// ºñÆ®¸Ê°ú backDC ¿¬°á
-			GetObject(hBit, sizeof(BITMAP), &bmp);//hBitÀÇ ºñÆ®¸Ê Á¤º¸¸¦ bmp¿¡ ÀúÀå
+			hPreBit = (HBITMAP)SelectObject(hMemDC, backBitMap);// ë¹„íŠ¸ë§µê³¼ backDC ì—°ê²°
+			GetObject(hBit, sizeof(BITMAP), &bmp);//hBitì˜ ë¹„íŠ¸ë§µ ì •ë³´ë¥¼ bmpì— ì €ì¥
 			SelectObject(backDC, hBit);
-			BitBlt(hMemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//backDC¿¡ hMemDCÀÇ ÀÌ¹ÌÁö º¹»ç
+			BitBlt(hMemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//backDCì— hMemDCì˜ ì´ë¯¸ì§€ ë³µì‚¬
 			
 
-			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//È­¸é¿¡ backDC ÀÌ¹ÌÁö¸¦ º¹»ç
+			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//í™”ë©´ì— backDC ì´ë¯¸ì§€ë¥¼ ë³µì‚¬
 
 			SelectObject(hMemDC, hPreBit);
 
@@ -176,7 +176,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_CREATE:
-		hTimer = (HANDLE)SetTimer(hWnd, 1, FPS_TIMER, NULL);//º¸¿©ÁÙ À©µµ¿ì, Å¸ÀÌ¸ÓID, Å¸ÀÌ¸Ó½Ã°£1000=1ÃÊ, ÇÔ¼ö PROC, NULL·ÎÇØµµµÊ wm_timer·Î µé¾î¿È
+		hTimer = (HANDLE)SetTimer(hWnd, 1, FPS_TIMER, NULL);//ë³´ì—¬ì¤„ ìœˆë„ìš°, íƒ€ì´ë¨¸ID, íƒ€ì´ë¨¸ì‹œê°„1000=1ì´ˆ, í•¨ìˆ˜ PROC, NULLë¡œí•´ë„ë¨ wm_timerë¡œ ë“¤ì–´ì˜´
 		(HANDLE)SetTimer(hWnd, 2, 5000, NULL);
 		break;
 	case WM_TIMER:
@@ -184,7 +184,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case 1:
 			hBit = ScreenCapture(hWnd);
-			InvalidateRect(hWnd, NULL, FALSE);//¼¼¹øÂ° ÀÎÀÚ´Â Áö¿ì°í ±×¸±Áö FALSE = ¾ÈÁö¿ò
+			InvalidateRect(hWnd, NULL, FALSE);//ì„¸ë²ˆì§¸ ì¸ìëŠ” ì§€ìš°ê³  ê·¸ë¦´ì§€ FALSE = ì•ˆì§€ì›€
 			break;
 		case 2:
 			wchar_t bb[100];
@@ -271,10 +271,10 @@ HBITMAP ScreenCapture(HWND hWnd)
 	static int width = GetSystemMetrics(SM_CXSCREEN);
 
 	static int height = GetSystemMetrics(SM_CYSCREEN);
-	//GetWindowRect(GetForegroundWindow(), &rt);//ÀÌ°Ç È°¼ºÁßÀÎ Ã¢ Å©±â °¡Á®¿Ã¶§»ç¿ë ´Ù¸¥Ã¢ Å¬¸¯ÇÏ¸é ±×Ã¢ »çÀÌÁî·Î º¯ÇÔ
-	//GetWindowRect(hWnd, &rt);//ÇöÀç Ã¢ »çÀÌÁî ¹× À§Ä¡
-	//GetWindowRect(GetActiveWindow(), &rt);//È°¼º Ã¢ Á¤º¸
-	GetClientRect(hWnd, &rt);//Ã¢»çÀÌÁî¸¸ ¾Ë°í½ÍÀ»¶§ left,topÀº 0
+	//GetWindowRect(GetForegroundWindow(), &rt);//ì´ê±´ í™œì„±ì¤‘ì¸ ì°½ í¬ê¸° ê°€ì ¸ì˜¬ë•Œì‚¬ìš© ë‹¤ë¥¸ì°½ í´ë¦­í•˜ë©´ ê·¸ì°½ ì‚¬ì´ì¦ˆë¡œ ë³€í•¨
+	//GetWindowRect(hWnd, &rt);//í˜„ì¬ ì°½ ì‚¬ì´ì¦ˆ ë° ìœ„ì¹˜
+	//GetWindowRect(GetActiveWindow(), &rt);//í™œì„± ì°½ ì •ë³´
+	GetClientRect(hWnd, &rt);//ì°½ì‚¬ì´ì¦ˆë§Œ ì•Œê³ ì‹¶ì„ë•Œ left,topì€ 0
 
 	/*rt.left = max(0, rt.left);
 
@@ -300,19 +300,15 @@ HBITMAP ScreenCapture(HWND hWnd)
 	SelectObject(hMemDC, hBitmap);
 
 
-	SetStretchBltMode(hMemDC, HALFTONE);// ÀÌ¹ÌÁö¸¦ Ãà¼Ò³ª È®´ë¸¦ °æ¿ì »ı±â´Â ¼Õ½ÇÀ» º¸Á¤ÇØ ÁÖ´Â ÇÔ¼ö HALFTONEÀÌ ¼º´É °¡Àå ÁÁÀºµí
+	SetStretchBltMode(hMemDC, HALFTONE);// ì´ë¯¸ì§€ë¥¼ ì¶•ì†Œë‚˜ í™•ëŒ€ë¥¼ ê²½ìš° ìƒê¸°ëŠ” ì†ì‹¤ì„ ë³´ì •í•´ ì£¼ëŠ” í•¨ìˆ˜ HALFTONEì´ ì„±ëŠ¥ ê°€ì¥ ì¢‹ì€ë“¯
 
-	//BitBlt(hMemDC, 0, 0, width, height,hScrDC,0, 0, SRCCOPY);//°¡¿îµ¥ 2°³ÀÎÀÚ °øÀ¯bmp¿Í °°Àº»çÀÌÁî·Î Ç¥½Ã
-	StretchBlt(hMemDC, 0, 0, rt.right,rt.bottom, hScrDC, 0, 0, width,height, SRCCOPY);//ÀÌ¹ÌÁö »çÀÌÁî¸¦ º¯°æ
-
+	//BitBlt(hMemDC, 0, 0, width, height,hScrDC,0, 0, SRCCOPY);//ê°€ìš´ë° 2ê°œì¸ì ê³µìœ bmpì™€ ê°™ì€ì‚¬ì´ì¦ˆë¡œ í‘œì‹œ
+	StretchBlt(hMemDC, 0, 0, rt.right,rt.bottom, hScrDC, 0, 0, width,height, SRCCOPY);//ì´ë¯¸ì§€ ì‚¬ì´ì¦ˆë¥¼ ë³€ê²½
 
 	DeleteDC(hMemDC);
-
 	DeleteDC(hScrDC);
 
 	//InvalidateRect(hWnd, NULL, TRUE);
-
-
 
 	return hBitmap;
 
@@ -325,7 +321,7 @@ int CALLBACK WinMain(
 	_In_ HINSTANCE hPrevInstance,
 	_In_ LPSTR     lpCmdLine,
 	_In_ int       nCmdShow
-)//ÁøÀÔÁ¡
+)//ì§„ì…ì 
 {
 	WNDCLASSEX wcex;
 
