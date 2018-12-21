@@ -6,7 +6,8 @@ Win32_Study
 
 <p>
   <ul>
-    <li>- [x] Improve double buffering</li>
+    <li>- [x] Add screen capture</li>
+    <li>- [x] Improve double buffering</li>    
     <li>- [ ] Add image compress(JPEG)</li>    
     <li>- [ ] Add network code(socket)</li>    
     <li>- [ ] Create </li>    
