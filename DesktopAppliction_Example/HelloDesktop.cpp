@@ -30,6 +30,9 @@ BOOL CALLBACK DigProc(HWND, UINT, WPARAM, LPARAM);
 HBITMAP ScreenCapture(HWND);
 
 HBRUSH g_hbrBackground = NULL;
+
+static int windowWidth = GetSystemMetrics(SM_CXSCREEN);
+static int windowHeight = GetSystemMetrics(SM_CYSCREEN);
 BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	int msgboxID;
 	
@@ -106,7 +109,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	
 	static HBITMAP hBit = NULL;
 	static HBITMAP backBitMap;
-	static HBITMAP hPreBit;
+	static HBITMAP tempBitMap;
 
 	static int x = 100;
 	static int y = 100;
@@ -119,26 +122,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_KEYDOWN:		
 			
 		EndPaint(hWnd, &ps);
-		
-		switch (wParam) {
-		case keyCode('x'):
-			//MessageBox(hWnd, (LPCWSTR)bb, L"Title", NULL);
-			hBit = ScreenCapture(hWnd);
-			//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DigProc);
-			break;
-		case VK_LEFT:
-			x -= 8;
-			break;
-		case VK_RIGHT:
-			x += 8;
-			break;
-		case VK_UP:
-			y -= 8;
-			break;
-		case VK_DOWN:
-			y += 8;
-			break;
-		}
+		//
+		//switch (wParam) {
+		//case keyCode('x'):
+		//	//MessageBox(hWnd, (LPCWSTR)bb, L"Title", NULL);
+		//	hBit = ScreenCapture(hWnd);
+		//	//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DigProc);
+		//	break;
+		//case VK_LEFT:
+		//	x -= 8;
+		//	break;
+		//case VK_RIGHT:
+		//	x += 8;
+		//	break;
+		//case VK_UP:
+		//	y -= 8;
+		//	break;
+		//case VK_DOWN:
+		//	y += 8;
+		//	break;
+		//}
 		InvalidateRect(hWnd, NULL, TRUE);
 		break;
 	case WM_PAINT:
@@ -148,27 +151,27 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			//MessageBox(hWnd, L"@@@@", L"!!", NULL);
 			GetClientRect(hWnd, &clientRect);
 
-			hMemDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 DC
-			backDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 DC
+			hMemDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 main DC
+			backDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 back DC
 
-			backBitMap = CreateCompatibleBitmap(hdc, clientRect.right, clientRect.bottom);// 빈 bitmap 생성
+			backBitMap = CreateCompatibleBitmap(hdc, clientRect.right, clientRect.bottom);// 빈 bitmap 생성 기본값이 사이즈1이므로 해상도에 맞는 비트맵 생성
 
-			hPreBit = (HBITMAP)SelectObject(hMemDC, backBitMap);// 비트맵과 backDC 연결
+			tempBitMap = (HBITMAP)SelectObject(backDC, backBitMap);// 비트맵과 backDC 연결
 			GetObject(hBit, sizeof(BITMAP), &bmp);//hBit의 비트맵 정보를 bmp에 저장
-			SelectObject(backDC, hBit);
-			BitBlt(hMemDC, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//backDC에 hMemDC의 이미지 복사
+			SelectObject(hMemDC, hBit);
+			RECT rtt = { 0,0,clientRect.right, clientRect.bottom };//검은색 칠할 범위
+			//FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(BLACK_BRUSH)); //검정색으로 색 칠하기
+			FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(WHITE_BRUSH)); //하얀색으로 색 칠하기
+			BitBlt(backDC, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//backDC에 hMemDC의 이미지 복사		
+
+			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//화면에 backDC 이미지를 복사
+
 			
-
-			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//화면에 backDC 이미지를 복사
-
-			SelectObject(hMemDC, hPreBit);
-
-			DeleteObject(hBit);
-			DeleteDC(hMemDC);
+			DeleteObject(SelectObject(backDC, tempBitMap));
+			DeleteObject(hBit);			
 			DeleteDC(backDC);
-			hBit = NULL;
+			DeleteDC(hMemDC);
 			FPS++;
-
 		}
 		EndPaint(hWnd, &ps);
 		break;
@@ -184,7 +187,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case 1:
 			hBit = ScreenCapture(hWnd);
-			InvalidateRect(hWnd, NULL, FALSE);//세번째 인자는 지우고 그릴지 FALSE = 안지움
+			InvalidateRect(hWnd, NULL, FALSE);//세번째 인자는 지우고 그릴지 FALSE = 안지움   ==>paint불림
 			break;
 		case 2:
 			wchar_t bb[100];
@@ -201,7 +204,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	return 0;
 }
+void KeyPress() {
+	if (GetAsyncKeyState(VK_LEFT)) {
 
+	}
+	if (GetAsyncKeyState(VK_RIGHT)) {
+
+	}
+}
 HBITMAP WindowCapture(HWND hWnd)
 
 {
@@ -268,9 +278,7 @@ HBITMAP ScreenCapture(HWND hWnd)
 	RECT rt;
 	
 
-	static int width = GetSystemMetrics(SM_CXSCREEN);
-
-	static int height = GetSystemMetrics(SM_CYSCREEN);
+	
 	//GetWindowRect(GetForegroundWindow(), &rt);//이건 활성중인 창 크기 가져올때사용 다른창 클릭하면 그창 사이즈로 변함
 	//GetWindowRect(hWnd, &rt);//현재 창 사이즈 및 위치
 	//GetWindowRect(GetActiveWindow(), &rt);//활성 창 정보
@@ -284,35 +292,31 @@ HBITMAP ScreenCapture(HWND hWnd)
 
 	rt.bottom = min(rt.bottom, GetSystemMetrics(SM_CYSCREEN));*/
 
-
 	hScrDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
-
-
 
 	hMemDC = CreateCompatibleDC(hScrDC);
 
-
-
-	hBitmap = CreateCompatibleBitmap(hScrDC, width, height);
-
-
+	hBitmap = CreateCompatibleBitmap(hScrDC, windowWidth, windowHeight);
 
 	SelectObject(hMemDC, hBitmap);
-
-
 	SetStretchBltMode(hMemDC, HALFTONE);// 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋은듯
 
-	//BitBlt(hMemDC, 0, 0, width, height,hScrDC,0, 0, SRCCOPY);//가운데 2개인자 공유bmp와 같은사이즈로 표시
-	StretchBlt(hMemDC, 0, 0, rt.right,rt.bottom, hScrDC, 0, 0, width,height, SRCCOPY);//이미지 사이즈를 변경
-
-
+	//BitBlt(hMemDC, 0, 0, rt.right, rt.bottom,hScrDC,0, 0, SRCCOPY);//가운데 2개인자 공유bmp와 같은사이즈로 표시
+	int bmpHeight = (rt.right*windowHeight) / windowWidth;
+	//StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경
+	if (bmpHeight < rt.bottom) {
+		StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
+		//windowWidth:windowHeight=rt.right:y
+	//bmpHeight = (rt.right*windowHeight)/windowWidth;
+	}
+	else {
+		int bmpWidth = (rt.bottom*windowWidth) / windowHeight;
+		StretchBlt(hMemDC, rt.right / 2 - bmpWidth / 2, 0, bmpWidth, rt.bottom, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경
+	}
+	
 	DeleteDC(hMemDC);
 
 	DeleteDC(hScrDC);
-
-	//InvalidateRect(hWnd, NULL, TRUE);
-
-
 
 	return hBitmap;
 
