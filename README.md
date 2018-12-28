@@ -17,6 +17,8 @@ Win32_Study
 
 ## Dictionary
 
+### 스크린 사이즈
+
 * `GetSystemMetrics(SM_CXSCREEN)` `GetSystemMetrics(SM_CYSCREEN)`
 
   * 스크린의 X 크기, Y크기를 리턴
@@ -37,7 +39,19 @@ Win32_Study
 * `ScreenToClient`
 
   * 화면의 원점을 기준으로 하는 좌표 lpPoint를 hWnd의 작업 영역을 기준으로 하는 좌표로 변환한다. hWnd윈도우의 작업 영역 원점의 화면 좌표가 cx, cy일 때 lpPoint는 lpPoint.x - cx, lpPoint - cy로 변환된다. GetCursorPos, MoveWindow, GetWindowRect 등과 같이 화면 좌표를 리턴하는 함수로부터 작업 영역의 좌표로 변환하고자 할 때 이 함수를 사용한다.
-  
+### DC 스케일링  
+* `SetStretchBltMode`
+  * ```
+    SetStretchBltMode(hMemDC, HALFTONE);
+    // 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋다.
+    ```
+   
+  *  |      값      	| 설명                                                                                                                                    	|
+      |:------------:	|-----------------------------------------------------------------------------------------------------------------------------------------	|
+      | BLACKONWHITE 	| 제거되거나 존재하는 픽셀의 색상 값을 사용하여 AND 연산자를 수행합니다.  흑백 비트맵의 경우 흰 픽셀을 훼손시키고 검은 픽셀을 보존합니다. 	|
+      | COLORONCOLOR 	| 픽셀을 삭제합니다.  모두 제거된 픽셀 줄의 정보를 보존하지 않고 삭제합니다.                                                              	|
+      |   HALFTONE   	| 원본 사각형에서 대상 사각형 안의 픽셀 영역으로 픽셀을 보여줍니다. *  대상 픽셀의 평균 색상을 원본 픽셀 색상으로 근사치로 계산합니다.    	|
+      | WHITEONBLACK 	| 제거되거나 존재하는 픽셀의 색상 값을 사용하여 OR 연산자를 수행합니다.  흑백 비트맵의 경우 검은 픽셀을 훼손시키고 흰 픽셀을 보존합니다.  	|
   
   
 ## Error Log
