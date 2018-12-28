@@ -42,9 +42,11 @@ Win32_Study
 ### DC 스케일링  
 * `SetStretchBltMode`
   * ```
-    SetStretchBltMode(hMemDC, HALFTONE);
     // 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋다.
-    StretchBlt(hMemDC, 0, 0, , bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
+    SetStretchBltMode(hMemDC, HALFTONE);
+    
+    //이미지 사이즈를 변경	
+    StretchBlt(hMemDC, 0, 0, , bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);
     ```
    
   *  |      값      	| 설명                                                                                                                                    	|
