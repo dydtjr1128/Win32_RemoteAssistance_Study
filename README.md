@@ -10,7 +10,7 @@ Win32_Study
     <li>- [x] Improve double buffering</li>    
     <li>- [ ] Add image compress(JPEG)</li>    
     <li>- [ ] Add network code(socket)</li>    
-    <li>- [ ] Create </li>    
+    <li>- [ ] Register service & make installer </li>    
   </ul>
 </p>
 
