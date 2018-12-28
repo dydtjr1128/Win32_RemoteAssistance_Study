@@ -30,9 +30,9 @@ BOOL CALLBACK DigProc(HWND, UINT, WPARAM, LPARAM);
 HBITMAP ScreenCapture(HWND);
 
 HBRUSH g_hbrBackground = NULL;
+static int windowWidth;
+static int windowHeight;
 
-static int windowWidth = GetSystemMetrics(SM_CXSCREEN);
-static int windowHeight = GetSystemMetrics(SM_CYSCREEN);
 BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	int msgboxID;
 	
@@ -159,9 +159,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			tempBitMap = (HBITMAP)SelectObject(backDC, backBitMap);// 비트맵과 backDC 연결
 			GetObject(hBit, sizeof(BITMAP), &bmp);//hBit의 비트맵 정보를 bmp에 저장
 			SelectObject(hMemDC, hBit);
-			RECT rtt = { 0,0,clientRect.right, clientRect.bottom };//검은색 칠할 범위
-			//FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(BLACK_BRUSH)); //검정색으로 색 칠하기
-			FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(WHITE_BRUSH)); //하얀색으로 색 칠하기
+			
 			BitBlt(backDC, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//backDC에 hMemDC의 이미지 복사		
 
 			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//화면에 backDC 이미지를 복사
@@ -179,6 +177,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_CREATE:
+		SetProcessDPIAware();
+		windowWidth = GetSystemMetrics(SM_CXSCREEN);
+		windowHeight = GetSystemMetrics(SM_CYSCREEN);
+		/*
+		https://docs.microsoft.com/ko-kr/dotnet/framework/ui-automation/ui-automation-and-screen-scaling 
+		★★전체 프로세스 dpi가 인식되므로 프로세스에 속하는 모든 창이 실제 크기로 유지된다. ★★
+		서피스 프로 등 고해상도에서 200%등의 스케일링이 되어있는경우 GetSystemMetrics를 이용하여도 해상도 크기를 정상적으로 가져오지 못한다.(서피스 프로에서 200%사용시 1920,1080으로 가져옴)
+		그렇기 때문에 이 함수를 사용하여 논리적 좌표가 아닌 실제 좌표를 사용하게된다.
+		API call 보다 매니패스트를 이용한 방법을 권장한다고 한다.(https://msdn.microsoft.com/ko-kr/C9488338-D863-45DF-B5CB-7ED9B869A5E2)
+		*/
 		hTimer = (HANDLE)SetTimer(hWnd, 1, FPS_TIMER, NULL);//보여줄 윈도우, 타이머ID, 타이머시간1000=1초, 함수 PROC, NULL로해도됨 wm_timer로 들어옴
 		(HANDLE)SetTimer(hWnd, 2, 5000, NULL);
 		break;
@@ -298,12 +306,17 @@ HBITMAP ScreenCapture(HWND hWnd)
 
 	hBitmap = CreateCompatibleBitmap(hScrDC, windowWidth, windowHeight);
 
+	
+
 	SelectObject(hMemDC, hBitmap);
 	SetStretchBltMode(hMemDC, HALFTONE);// 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋은듯
 
+	RECT rtt = { 0,0,rt.right, rt.bottom };//검은색 칠할 범위
+	FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(WHITE_BRUSH)); //하얀색으로 색 칠하기(default=black)
+
 	//BitBlt(hMemDC, 0, 0, rt.right, rt.bottom,hScrDC,0, 0, SRCCOPY);//가운데 2개인자 공유bmp와 같은사이즈로 표시
 	int bmpHeight = (rt.right*windowHeight) / windowWidth;
-	//StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경
+	
 	if (bmpHeight < rt.bottom) {
 		StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
 		//windowWidth:windowHeight=rt.right:y
