@@ -44,6 +44,7 @@ Win32_Study
   * ```
     SetStretchBltMode(hMemDC, HALFTONE);
     // 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋다.
+    StretchBlt(hMemDC, 0, 0, , bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
     ```
    
   *  |      값      	| 설명                                                                                                                                    	|
