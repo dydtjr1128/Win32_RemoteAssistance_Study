@@ -41,6 +41,7 @@ Win32_Study
   * 화면의 원점을 기준으로 하는 좌표 lpPoint를 hWnd의 작업 영역을 기준으로 하는 좌표로 변환한다. hWnd윈도우의 작업 영역 원점의 화면 좌표가 cx, cy일 때 lpPoint는 lpPoint.x - cx, lpPoint - cy로 변환된다. GetCursorPos, MoveWindow, GetWindowRect 등과 같이 화면 좌표를 리턴하는 함수로부터 작업 영역의 좌표로 변환하고자 할 때 이 함수를 사용한다.
 ### DC 스케일링  
 * `SetStretchBltMode`
+  * https://docs.microsoft.com/ko-kr/windows/desktop/api/wingdi/nf-wingdi-setstretchbltmode
   * ```
     // 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋다.
     SetStretchBltMode(hMemDC, HALFTONE);
