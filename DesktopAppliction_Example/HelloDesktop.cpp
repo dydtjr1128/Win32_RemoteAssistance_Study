@@ -35,7 +35,7 @@ static int windowHeight;
 
 BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	int msgboxID;
-	
+
 	HDC hdc;
 	PAINTSTRUCT ps;
 	switch (message)
@@ -47,7 +47,7 @@ BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		MessageBox(hWnd, L"!!!", L"!!", NULL);
 		break;
 	case WM_INITDIALOG:
-		/*MessageBox(hWnd, L"!!!", L"!!", NULL);		
+		/*MessageBox(hWnd, L"!!!", L"!!", NULL);
 		g_hbrBackground = CreateSolidBrush(RGB(128, 128, 128));
 
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(NULL,
@@ -58,7 +58,7 @@ BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		MessageBox(hWnd, L"!~~~!!", L"!!", NULL);
-		
+
 
 		EndPaint(hWnd, &ps);
 		break;
@@ -104,9 +104,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	PAINTSTRUCT ps;
 	HDC hdc;
 	TCHAR greeting[] = _T("Hello, Windows desktop!");
-	HDC hMemDC,backDC;
+	HDC hMemDC, backDC;
 	BITMAP bmp;
-	
+
 	static HBITMAP hBit = NULL;
 	static HBITMAP backBitMap;
 	static HBITMAP tempBitMap;
@@ -115,12 +115,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static int y = 100;
 	static HANDLE hTimer;
 	static int FPS = 0;
-	
+
 	static RECT clientRect;
 	switch (message)
 	{
-	case WM_KEYDOWN:		
-			
+	case WM_KEYDOWN:
+
 		EndPaint(hWnd, &ps);
 		//
 		//switch (wParam) {
@@ -147,7 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		//MessageBox(hWnd, L"@@@", L"@$!", NULL);
-		if (hBit != NULL){
+		if (hBit != NULL) {
 			//MessageBox(hWnd, L"@@@@", L"!!", NULL);
 			GetClientRect(hWnd, &clientRect);
 
@@ -159,14 +159,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			tempBitMap = (HBITMAP)SelectObject(backDC, backBitMap);// 비트맵과 backDC 연결
 			GetObject(hBit, sizeof(BITMAP), &bmp);//hBit의 비트맵 정보를 bmp에 저장
 			SelectObject(hMemDC, hBit);
-			
+
 			BitBlt(backDC, 0, 0, bmp.bmWidth, bmp.bmHeight, hMemDC, 0, 0, SRCCOPY);//backDC에 hMemDC의 이미지 복사		
 
 			BitBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, backDC, 0, 0, SRCCOPY);//화면에 backDC 이미지를 복사
 
-			
+
 			DeleteObject(SelectObject(backDC, tempBitMap));
-			DeleteObject(hBit);			
+			DeleteObject(hBit);
 			DeleteDC(backDC);
 			DeleteDC(hMemDC);
 			FPS++;
@@ -181,7 +181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		windowWidth = GetSystemMetrics(SM_CXSCREEN);
 		windowHeight = GetSystemMetrics(SM_CYSCREEN);
 		/*
-		https://docs.microsoft.com/ko-kr/dotnet/framework/ui-automation/ui-automation-and-screen-scaling 
+		https://docs.microsoft.com/ko-kr/dotnet/framework/ui-automation/ui-automation-and-screen-scaling
 		★★전체 프로세스 dpi가 인식되므로 프로세스에 속하는 모든 창이 실제 크기로 유지된다. ★★
 		서피스 프로 등 고해상도에서 200%등의 스케일링이 되어있는경우 GetSystemMetrics를 이용하여도 해상도 크기를 정상적으로 가져오지 못한다.(서피스 프로에서 200%사용시 1920,1080으로 가져옴)
 		그렇기 때문에 이 함수를 사용하여 논리적 좌표가 아닌 실제 좌표를 사용하게된다.
@@ -199,7 +199,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case 2:
 			wchar_t bb[100];
-			wsprintf(bb, L"%d %d", wParam,FPS/5);
+			wsprintf(bb, L"%d %d", wParam, FPS / 5);
 			//MessageBox(hWnd,bb, L"!!", NULL);
 			FPS = 0;
 			break;
@@ -233,7 +233,7 @@ HBITMAP WindowCapture(HWND hWnd)
 	GetWindowRect(GetForegroundWindow(), &rt);
 
 	//	GetWindowRect(GetActiveWindow(), &rt);
-	
+
 
 	rt.left = max(0, rt.left);
 
@@ -284,9 +284,9 @@ HBITMAP ScreenCapture(HWND hWnd)
 
 	HBITMAP hBitmap;
 	RECT rt;
-	
 
-	
+
+
 	//GetWindowRect(GetForegroundWindow(), &rt);//이건 활성중인 창 크기 가져올때사용 다른창 클릭하면 그창 사이즈로 변함
 	//GetWindowRect(hWnd, &rt);//현재 창 사이즈 및 위치
 	//GetWindowRect(GetActiveWindow(), &rt);//활성 창 정보
@@ -306,7 +306,7 @@ HBITMAP ScreenCapture(HWND hWnd)
 
 	hBitmap = CreateCompatibleBitmap(hScrDC, windowWidth, windowHeight);
 
-	
+
 
 	SelectObject(hMemDC, hBitmap);
 	SetStretchBltMode(hMemDC, HALFTONE);// 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋은듯
@@ -316,7 +316,7 @@ HBITMAP ScreenCapture(HWND hWnd)
 
 	//BitBlt(hMemDC, 0, 0, rt.right, rt.bottom,hScrDC,0, 0, SRCCOPY);//가운데 2개인자 공유bmp와 같은사이즈로 표시
 	int bmpHeight = (rt.right*windowHeight) / windowWidth;
-	
+
 	if (bmpHeight < rt.bottom) {
 		StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
 		//windowWidth:windowHeight=rt.right:y
@@ -326,7 +326,7 @@ HBITMAP ScreenCapture(HWND hWnd)
 		int bmpWidth = (rt.bottom*windowWidth) / windowHeight;
 		StretchBlt(hMemDC, rt.right / 2 - bmpWidth / 2, 0, bmpWidth, rt.bottom, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경
 	}
-	
+
 	DeleteDC(hMemDC);
 
 	DeleteDC(hScrDC);
