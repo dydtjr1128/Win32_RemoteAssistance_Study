@@ -15,23 +15,6 @@ Win32_Study
 </p>
 
 
-
-## Error Log
-<p>
-  <ul>
-    <li>
-      서피스 프로 등 고해상도의 모니터에서 윈도우 DPI 스케일링으로 인해 GetSystemMetrics(SM_CXSCREEN)를 이용한 해상도 값 인식 시 문제 발생
-       <ul>
-         <li>
-          SetProcessDPIAware() 를 이용하여 프로세스가 원래 스크린으로 인식하도록 함 그러나 MSDN에서는 API Call 보다는 Manifest 추가를 권장 ->               https://msdn.microsoft.com/ko-kr/C9488338-D863-45DF-B5CB-7ED9B869A5E2
-         </li>
-      </ul>
-      <img src="https://user-images.githubusercontent.com/19161231/50512843-a391d280-0ad7-11e9-9a7d-ff3e3dbdd353.png">
-    </li>    
-  </ul>
-</p>
-
-
 ## Dictionary
 
 * `GetSystemMetrics(SM_CXSCREEN)` `GetSystemMetrics(SM_CYSCREEN)`
@@ -54,3 +37,21 @@ Win32_Study
 * `ScreenToClient`
 
   * 화면의 원점을 기준으로 하는 좌표 lpPoint를 hWnd의 작업 영역을 기준으로 하는 좌표로 변환한다. hWnd윈도우의 작업 영역 원점의 화면 좌표가 cx, cy일 때 lpPoint는 lpPoint.x - cx, lpPoint - cy로 변환된다. GetCursorPos, MoveWindow, GetWindowRect 등과 같이 화면 좌표를 리턴하는 함수로부터 작업 영역의 좌표로 변환하고자 할 때 이 함수를 사용한다.
+  
+  
+  
+## Error Log
+<p>
+  <ul>
+    <li>
+      서피스 프로 등 고해상도의 모니터에서 윈도우 DPI 스케일링으로 인해 GetSystemMetrics(SM_CXSCREEN)를 이용한 해상도 값 인식 시 문제 발생
+       <ul>
+         <li>
+          SetProcessDPIAware() 를 이용하여 프로세스가 원래 스크린으로 인식하도록 함 그러나 MSDN에서는 API Call 보다는 Manifest 추가를 권장 ->               https://msdn.microsoft.com/ko-kr/C9488338-D863-45DF-B5CB-7ED9B869A5E2
+         </li>
+      </ul>
+      <img src="https://user-images.githubusercontent.com/19161231/50512843-a391d280-0ad7-11e9-9a7d-ff3e3dbdd353.png">
+    </li>    
+  </ul>
+</p>
+
