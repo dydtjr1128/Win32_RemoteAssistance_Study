@@ -119,31 +119,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static RECT clientRect;
 	switch (message)
 	{
-	case WM_KEYDOWN:
-
-		EndPaint(hWnd, &ps);
-		//
-		//switch (wParam) {
-		//case keyCode('x'):
-		//	//MessageBox(hWnd, (LPCWSTR)bb, L"Title", NULL);
-		//	hBit = ScreenCapture(hWnd);
-		//	//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DigProc);
-		//	break;
-		//case VK_LEFT:
-		//	x -= 8;
-		//	break;
-		//case VK_RIGHT:
-		//	x += 8;
-		//	break;
-		//case VK_UP:
-		//	y -= 8;
-		//	break;
-		//case VK_DOWN:
-		//	y += 8;
-		//	break;
-		//}
-		InvalidateRect(hWnd, NULL, TRUE);
-		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		//MessageBox(hWnd, L"@@@", L"@$!", NULL);
@@ -173,6 +148,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		EndPaint(hWnd, &ps);
 		break;
+	case WM_KEYDOWN:
+
+		EndPaint(hWnd, &ps);
+		//
+		//switch (wParam) {
+		//case keyCode('x'):
+		//	//MessageBox(hWnd, (LPCWSTR)bb, L"Title", NULL);
+		//	hBit = ScreenCapture(hWnd);
+		//	//DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG1), NULL, DigProc);
+		//	break;
+		//case VK_LEFT:
+		//	x -= 8;
+		//	break;
+		//case VK_RIGHT:
+		//	x += 8;
+		//	break;
+		//case VK_UP:
+		//	y -= 8;
+		//	break;
+		//case VK_DOWN:
+		//	y += 8;
+		//	break;
+		//}
+		InvalidateRect(hWnd, NULL, TRUE);
+		break;	
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
