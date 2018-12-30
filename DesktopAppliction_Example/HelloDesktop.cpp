@@ -32,7 +32,8 @@ HBITMAP ScreenCapture(HWND);
 HBRUSH g_hbrBackground = NULL;
 static int windowWidth;
 static int windowHeight;
-
+static int FPStemp = 0;
+static int FPS = 0;
 BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	int msgboxID;
 
@@ -103,7 +104,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
 	HDC hdc;
-	TCHAR greeting[] = _T("Hello, Windows desktop!");
 	HDC hMemDC, backDC;
 	BITMAP bmp;
 
@@ -114,17 +114,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	static int x = 100;
 	static int y = 100;
 	static HANDLE hTimer;
-	static int FPS = 0;
+	
 
 	static RECT clientRect;
+	GetClientRect(hWnd, &clientRect);
 	switch (message)
 	{
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		//MessageBox(hWnd, L"@@@", L"@$!", NULL);
 		if (hBit != NULL) {
-			//MessageBox(hWnd, L"@@@@", L"!!", NULL);
-			GetClientRect(hWnd, &clientRect);
+			//MessageBox(hWnd, L"@@@@", L"!!", NULL);			
 
 			hMemDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 main DC
 			backDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 back DC
@@ -144,7 +144,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(hBit);
 			DeleteDC(backDC);
 			DeleteDC(hMemDC);
-			FPS++;
+			FPStemp++;
 		}
 		EndPaint(hWnd, &ps);
 		break;
@@ -172,7 +172,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		//	break;
 		//}
 		InvalidateRect(hWnd, NULL, TRUE);
-		break;	
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -188,20 +188,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		API call 보다 매니패스트를 이용한 방법을 권장한다고 한다.(https://msdn.microsoft.com/ko-kr/C9488338-D863-45DF-B5CB-7ED9B869A5E2)
 		*/
 		hTimer = (HANDLE)SetTimer(hWnd, 1, FPS_TIMER, NULL);//보여줄 윈도우, 타이머ID, 타이머시간1000=1초, 함수 PROC, NULL로해도됨 wm_timer로 들어옴
-		(HANDLE)SetTimer(hWnd, 2, 5000, NULL);
+		(HANDLE)SetTimer(hWnd, 2, 1000, NULL);
 		break;
 	case WM_TIMER:
 		switch (wParam) {//timerid
 
 		case 1:
-			hBit = ScreenCapture(hWnd);
+			hBit = ScreenCapture(hWnd);			
 			InvalidateRect(hWnd, NULL, FALSE);//세번째 인자는 지우고 그릴지 FALSE = 안지움   ==>paint불림
 			break;
 		case 2:
-			wchar_t bb[100];
-			wsprintf(bb, L"%d %d", wParam, FPS / 5);
+			/*wchar_t bb[100];
+			wsprintf(bb, L"%d %d", wParam, FPS / 5);*/
 			//MessageBox(hWnd,bb, L"!!", NULL);
-			FPS = 0;
+			FPS = FPStemp;
+			FPStemp = 0;			
 			break;
 		}
 	default:
@@ -292,40 +293,34 @@ HBITMAP ScreenCapture(HWND hWnd)
 	//GetWindowRect(GetActiveWindow(), &rt);//활성 창 정보
 	GetClientRect(hWnd, &rt);//창사이즈만 알고싶을때 left,top은 0
 
-	/*rt.left = max(0, rt.left);
-
-	rt.right = min(rt.right, GetSystemMetrics(SM_CXSCREEN));
-
-	rt.top = max(0, rt.top)+40;
-
-	rt.bottom = min(rt.bottom, GetSystemMetrics(SM_CYSCREEN));*/
-
 	hScrDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
 
 	hMemDC = CreateCompatibleDC(hScrDC);
 
 	hBitmap = CreateCompatibleBitmap(hScrDC, windowWidth, windowHeight);
 
-
-
 	SelectObject(hMemDC, hBitmap);
 	SetStretchBltMode(hMemDC, HALFTONE);// 이미지를 축소나 확대를 경우 생기는 손실을 보정해 주는 함수 HALFTONE이 성능 가장 좋은듯
-
+	
 	RECT rtt = { 0,0,rt.right, rt.bottom };//검은색 칠할 범위
-	FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(WHITE_BRUSH)); //하얀색으로 색 칠하기(default=black)
-
+	FillRect(hMemDC, &rtt, (HBRUSH)GetStockObject(WHITE_BRUSH)); //하얀색으로 색 칠하기(default=black)	
+	
 	//BitBlt(hMemDC, 0, 0, rt.right, rt.bottom,hScrDC,0, 0, SRCCOPY);//가운데 2개인자 공유bmp와 같은사이즈로 표시
 	int bmpHeight = (rt.right*windowHeight) / windowWidth;
 
 	if (bmpHeight < rt.bottom) {
 		StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
 		//windowWidth:windowHeight=rt.right:y
-	//bmpHeight = (rt.right*windowHeight)/windowWidth;
+		//bmpHeight = (rt.right*windowHeight)/windowWidth;
 	}
 	else {
 		int bmpWidth = (rt.bottom*windowWidth) / windowHeight;
 		StretchBlt(hMemDC, rt.right / 2 - bmpWidth / 2, 0, bmpWidth, rt.bottom, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경
 	}
+	SetTextAlign(hMemDC, TA_CENTER);
+	TCHAR s[10];
+	_stprintf(s, _T("%d FPS"), FPS);
+	TextOut(hMemDC, rt.right / 2, 20, s, lstrlen(s));
 
 	DeleteDC(hMemDC);
 
@@ -354,7 +349,8 @@ int CALLBACK WinMain(
 	wcex.hInstance = hInstance;
 	wcex.hIcon = LoadIcon(hInstance, IDI_APPLICATION);
 	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	//wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);//배경 색
+	wcex.hbrBackground = NULL;//배경색 설정 안함
 	wcex.lpszMenuName = NULL;
 	wcex.lpszClassName = szWindowClass;
 	wcex.hIconSm = LoadIcon(wcex.hInstance, IDI_APPLICATION);
