@@ -28,6 +28,7 @@ LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 BOOL CALLBACK DigProc(HWND, UINT, WPARAM, LPARAM);
 
 HBITMAP ScreenCapture(HWND);
+HBITMAP ScreenCapture2(HWND);
 
 HBRUSH g_hbrBackground = NULL;
 static int windowWidth;
@@ -122,16 +123,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		//MessageBox(hWnd, L"@@@", L"@$!", NULL);
+		
 		if (hBit != NULL) {
 			//MessageBox(hWnd, L"@@@@", L"!!", NULL);			
 
 			hMemDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 main DC
 			backDC = CreateCompatibleDC(hdc);//더블버퍼링을 위한 back DC
 
-			backBitMap = CreateCompatibleBitmap(hdc, clientRect.right, clientRect.bottom);// 빈 bitmap 생성 기본값이 사이즈1이므로 해상도에 맞는 비트맵 생성
-
-			tempBitMap = (HBITMAP)SelectObject(backDC, backBitMap);// 비트맵과 backDC 연결
+			tempBitMap = (HBITMAP)SelectObject(backDC, hBit);// 캡쳐한 hBit비트맵과 backDC 연결
 			GetObject(hBit, sizeof(BITMAP), &bmp);//hBit의 비트맵 정보를 bmp에 저장
 			SelectObject(hMemDC, hBit);
 
@@ -145,7 +144,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteDC(backDC);
 			DeleteDC(hMemDC);
 			FPStemp++;
+			hBit = NULL;
 		}
+
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_KEYDOWN:
@@ -180,6 +181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		SetProcessDPIAware();
 		windowWidth = GetSystemMetrics(SM_CXSCREEN);
 		windowHeight = GetSystemMetrics(SM_CYSCREEN);
+
 		/*
 		https://docs.microsoft.com/ko-kr/dotnet/framework/ui-automation/ui-automation-and-screen-scaling
 		★★전체 프로세스 dpi가 인식되므로 프로세스에 속하는 모든 창이 실제 크기로 유지된다. ★★
@@ -187,6 +189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		그렇기 때문에 이 함수를 사용하여 논리적 좌표가 아닌 실제 좌표를 사용하게된다.
 		API call 보다 매니패스트를 이용한 방법을 권장한다고 한다.(https://msdn.microsoft.com/ko-kr/C9488338-D863-45DF-B5CB-7ED9B869A5E2)
 		*/
+
 		hTimer = (HANDLE)SetTimer(hWnd, 1, FPS_TIMER, NULL);//보여줄 윈도우, 타이머ID, 타이머시간1000=1초, 함수 PROC, NULL로해도됨 wm_timer로 들어옴
 		(HANDLE)SetTimer(hWnd, 2, 1000, NULL);
 		break;
@@ -308,7 +311,9 @@ HBITMAP ScreenCapture(HWND hWnd)
 	//BitBlt(hMemDC, 0, 0, rt.right, rt.bottom,hScrDC,0, 0, SRCCOPY);//가운데 2개인자 공유bmp와 같은사이즈로 표시
 	int bmpHeight = (rt.right*windowHeight) / windowWidth;
 
-	if (bmpHeight < rt.bottom) {
+
+	/* 가로 세로 비율에 따른 이미지 출력 사이즈 변경 */
+	if (bmpHeight < rt.bottom) {// 아래로 창이 길어 질 때
 		StretchBlt(hMemDC, 0, rt.bottom / 2 - bmpHeight / 2, rt.right, bmpHeight, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경	
 		//windowWidth:windowHeight=rt.right:y
 		//bmpHeight = (rt.right*windowHeight)/windowWidth;
@@ -317,6 +322,8 @@ HBITMAP ScreenCapture(HWND hWnd)
 		int bmpWidth = (rt.bottom*windowWidth) / windowHeight;
 		StretchBlt(hMemDC, rt.right / 2 - bmpWidth / 2, 0, bmpWidth, rt.bottom, hScrDC, 0, 0, windowWidth, windowHeight, SRCCOPY);//이미지 사이즈를 변경
 	}
+
+	/* FPS 텍스트 출력 */
 	SetTextAlign(hMemDC, TA_CENTER);
 	TCHAR s[10];
 	_stprintf(s, _T("%d FPS"), FPS);
@@ -329,8 +336,6 @@ HBITMAP ScreenCapture(HWND hWnd)
 	return hBitmap;
 
 }
-
-
 
 int CALLBACK WinMain(
 	_In_ HINSTANCE hInstance,
