@@ -1,7 +1,7 @@
 # Win32_Study
  팀 뷰어와 같은 원격 지원 프로그램 개발 공부 용 저장소
 
-
+![gif6](https://user-images.githubusercontent.com/19161231/50547144-9a3f6c00-0c77-11e9-90c4-f5cca7644c9b.gif)
 
 ## ToDo
 
@@ -75,6 +75,7 @@
 
 ***
 ### 자바의 Swing을 이용한 프로그램에서 Win32로 변경한 이유
+* https://github.com/dydtjr1128/RemoteControl
 * 자바에서 이미지를 만들어 화면에 보여 준 후, 자바의 원리상 GC가 이미지 메모리를 바로바로 해제해주지 않는다는 단점 (메모리를 많이 잡아먹는다.)
 * 자바 언어의 성능 상의 문제로 Win32에 비해 많은 CPU 및 메모리 자원 사용
 
