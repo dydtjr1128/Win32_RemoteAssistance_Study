@@ -18,7 +18,7 @@
 static TCHAR szWindowClass[] = _T("DesktopApp");
 
 // The string that appears in the application's title bar.
-static TCHAR szTitle[] = _T("Windows Desktop Guided Tour Application");
+static TCHAR szTitle[] = _T("Windows Remote Control Study Application");
 
 HINSTANCE hInst;
 
@@ -33,8 +33,8 @@ HBITMAP ScreenCapture2(HWND);
 HBRUSH g_hbrBackground = NULL;
 static int windowWidth;
 static int windowHeight;
-static int FPStemp = 0;
-static int FPS = 0;
+static int fpsTemp = 0;
+static int fps = 0;
 BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	int msgboxID;
 
@@ -49,13 +49,6 @@ BOOL CALLBACK DigProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 		MessageBox(hWnd, L"!!!", L"!!", NULL);
 		break;
 	case WM_INITDIALOG:
-		/*MessageBox(hWnd, L"!!!", L"!!", NULL);
-		g_hbrBackground = CreateSolidBrush(RGB(128, 128, 128));
-
-		SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)LoadIcon(NULL,
-			MAKEINTRESOURCE(IDI_APPLICATION)));
-		SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)LoadIcon(NULL,
-			MAKEINTRESOURCE(IDI_APPLICATION)));		*/
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
@@ -109,13 +102,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	BITMAP bmp;
 
 	static HBITMAP hBit = NULL;
-	static HBITMAP backBitMap;
 	static HBITMAP tempBitMap;
 
-	static int x = 100;
-	static int y = 100;
 	static HANDLE hTimer;
-	
 
 	static RECT clientRect;
 	GetClientRect(hWnd, &clientRect);
@@ -143,7 +132,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DeleteObject(hBit);
 			DeleteDC(backDC);
 			DeleteDC(hMemDC);
-			FPStemp++;
+			fpsTemp++;
 			hBit = NULL;
 		}
 
@@ -194,18 +183,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		(HANDLE)SetTimer(hWnd, 2, 1000, NULL);
 		break;
 	case WM_TIMER:
-		switch (wParam) {//timerid
+		switch (wParam) {//wParam = 타이머ID
 
-		case 1:
+		case 1:// Refresh 타이머
 			hBit = ScreenCapture(hWnd);			
 			InvalidateRect(hWnd, NULL, FALSE);//세번째 인자는 지우고 그릴지 FALSE = 안지움   ==>paint불림
 			break;
-		case 2:
-			/*wchar_t bb[100];
-			wsprintf(bb, L"%d %d", wParam, FPS / 5);*/
-			//MessageBox(hWnd,bb, L"!!", NULL);
-			FPS = FPStemp;
-			FPStemp = 0;			
+		case 2:// FPS 타이머
+			fps = fpsTemp;
+			fpsTemp = 0;
 			break;
 		}
 	default:
@@ -236,8 +222,9 @@ HBITMAP WindowCapture(HWND hWnd)
 
 	GetWindowRect(GetForegroundWindow(), &rt);
 
-	//	GetWindowRect(GetActiveWindow(), &rt);
-
+	//GetWindowRect(GetForegroundWindow(), &rt);//이건 활성중인 창 크기 가져올때사용 다른창 클릭하면 그창 사이즈로 변함
+	//GetWindowRect(hWnd, &rt);//현재 창 사이즈 및 위치
+	//GetWindowRect(GetActiveWindow(), &rt);//활성 창 정보
 
 	rt.left = max(0, rt.left);
 
@@ -289,11 +276,6 @@ HBITMAP ScreenCapture(HWND hWnd)
 	HBITMAP hBitmap;
 	RECT rt;
 
-
-
-	//GetWindowRect(GetForegroundWindow(), &rt);//이건 활성중인 창 크기 가져올때사용 다른창 클릭하면 그창 사이즈로 변함
-	//GetWindowRect(hWnd, &rt);//현재 창 사이즈 및 위치
-	//GetWindowRect(GetActiveWindow(), &rt);//활성 창 정보
 	GetClientRect(hWnd, &rt);//창사이즈만 알고싶을때 left,top은 0
 
 	hScrDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
@@ -326,7 +308,7 @@ HBITMAP ScreenCapture(HWND hWnd)
 	/* FPS 텍스트 출력 */
 	SetTextAlign(hMemDC, TA_CENTER);
 	TCHAR s[10];
-	_stprintf(s, _T("%d FPS"), FPS);
+	_stprintf(s, _T("%d FPS"), fps);
 	TextOut(hMemDC, rt.right / 2, 20, s, lstrlen(s));
 
 	DeleteDC(hMemDC);
@@ -410,6 +392,7 @@ int CALLBACK WinMain(
 	// nCmdShow: the fourth parameter from WinMain
 	ShowWindow(hWnd,
 		nCmdShow);
+
 	UpdateWindow(hWnd);
 
 	// Main message loop:
